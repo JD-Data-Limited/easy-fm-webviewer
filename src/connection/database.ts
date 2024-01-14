@@ -37,6 +37,7 @@ export class Database<T extends DatabaseStructure> extends EventEmitter implemen
     protected pendingRequests = new Map<string, RequestItem<any>>()
     protected readonly privateKey: string = ""
     protected requestTimeout: NodeJS.Timeout
+    readonly timezoneOffset = new Date().getTimezoneOffset()
 
     constructor() {
         super()
@@ -70,8 +71,8 @@ export class Database<T extends DatabaseStructure> extends EventEmitter implemen
         this.emit("token_expired")
     }
 
-    request(item: Omit<RequestData, "id">) {
-        let requestItem = new RequestItem(item)
+    request<D = any>(item: RequestData) {
+        let requestItem = new RequestItem<D>(item)
         let id = crypto.randomUUID()
         this.pendingRequests.set(id, requestItem)
         if (this.requestTimeout) clearTimeout(this.requestTimeout)
@@ -85,7 +86,7 @@ export class Database<T extends DatabaseStructure> extends EventEmitter implemen
 
     processRequestsOut() {
         this.pendingRequests
-        let requests: RequestData[] = []
+        let requests: any[] = []
         for (let item of this.pendingRequests) requests.push({id: item[0], ...item[1].data})
 
         const data: WebToFileMaker = {

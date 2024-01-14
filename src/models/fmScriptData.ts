@@ -1,4 +1,4 @@
-enum REQUEST_TYPES {
+export enum REQUEST_TYPES {
     GetDBMetadata,
     GetLayoutMetadata,
     RunScript,
@@ -12,7 +12,7 @@ enum REQUEST_TYPES {
     UploadContainer
 }
 
-export type RequestDataBase = {id: string}
+export type RequestDataBase = {}
 export type RequestData =
     GetDBMetadata |
     GetLayoutMetadata |
@@ -36,11 +36,14 @@ export type GetDBMetadata = RequestDataBase & {
 }
 
 export type GetLayoutMetadata = RequestDataBase & {
-    type: REQUEST_TYPES.RunScript
+    type: REQUEST_TYPES.GetLayoutMetadata,
+    layout: string
 }
 
 export type RunScript = RequestDataBase & {
-    type: REQUEST_TYPES.GetLayoutMetadata
+    type: REQUEST_TYPES.RunScript,
+    name: string,
+    parameter?: string
 }
 
 export type GetRecordRange = RequestDataBase & {

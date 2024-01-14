@@ -10,7 +10,8 @@ import {PortalInterface} from "../layouts/layoutInterface.js";
 import {FMError} from "../FMError.js";
 import {RecordFieldsMap} from "../layouts/recordFieldsMap";
 import {LayoutRecordBase} from "./layoutRecordBase";
-import {ApiRecordResponseObj, ApiResultSetObj} from "../models/apiResults";
+import {ApiRecordResponseObj, ApiResults, ApiResultSetObj} from "../models/apiResults";
+import {REQUEST_TYPES} from "../models/fmScriptData";
 
 export class LayoutRecord<T extends RecordFieldsMap, P extends PortalInterface> extends RecordBase<T> implements LayoutRecordBase {
     // @ts-ignore
@@ -48,6 +49,10 @@ export class LayoutRecord<T extends RecordFieldsMap, P extends PortalInterface> 
 
         if (this.recordId === -1) {
             // This is a new LayoutRecord
+            let req = this.layout.database.request<ApiResults<{ recordId: string, modId: string }>>({
+                type: REQUEST_TYPES.CreateRecord
+            })
+
              let res = await this.layout.database.apiRequest<{ recordId: string, modId: string }>(`${this.layout.endpoint}/records`, {
                     port: 443,
                     method: "POST",

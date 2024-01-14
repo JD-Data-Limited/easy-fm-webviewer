@@ -1,6 +1,6 @@
 import {RequestData} from "../models/fmScriptData";
 
-export class RequestItem<T> {
+export class RequestItem<T = unknown> {
     private _callback = (data: T) => {}
     readonly data: Omit<RequestData, "id">;
 
@@ -8,7 +8,7 @@ export class RequestItem<T> {
         this.data = data
     }
 
-    async() {
+    async(): Promise<T> {
         return new Promise((resolve) => {
             this._callback = resolve
         });
