@@ -2,10 +2,10 @@
  * Copyright (c) 2023. See LICENSE file for more information
  */
 
-import {LayoutInterface} from "../../layouts/layoutInterface.js";
-import {Portal} from "../portal.js";
-import {limitPortalsInterface} from "../../types.js";
-import {LayoutBase} from "../../layouts/layoutBase.js"
+import {LayoutInterface} from "../../layouts/layoutInterface";
+import {Portal} from "../portal";
+import {limitPortalsInterface} from "../../types";
+import {LayoutBase} from "../../layouts/layoutBase"
 
 export class RecordGetOperation<T extends LayoutInterface> {
     protected layout: LayoutBase

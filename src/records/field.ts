@@ -2,12 +2,12 @@
  * Copyright (c) 2023. See LICENSE file for more information
  */
 
-import {RecordBase, RecordTypes} from "./recordBase.js";
+import {RecordBase, RecordTypes} from "./recordBase";
 import fetch, {File, FormData} from "node-fetch";
 import * as http from "http";
-import {ContainerBufferResult, DOWNLOAD_MODES, FieldMetaData} from "../types.js";
-import {FMError} from "../FMError.js";
-import {ApiFieldDisplayTypes, ApiFieldMetadata, ApiFieldResultTypes, ApiFieldTypes} from "../models/apiResults.js";
+import {ContainerBufferResult, DOWNLOAD_MODES, FieldMetaData} from "../types";
+import {FMError} from "../FMError";
+import {ApiFieldDisplayTypes, ApiFieldMetadata, ApiFieldResultTypes, ApiFieldTypes} from "../models/apiResults";
 
 export type FieldValue = string | number | Date | Container
 export type Container = null
@@ -137,7 +137,7 @@ export class Field<T extends FieldValue> {
         let form = new FormData()
         form.append("upload", new File([buffer], filename, {type: mime}))
 
-        await this.record.layout.database.apiRequest<null>(`${this.record.endpoint}/containers/${this.id}/1`, {
+        await this.record.layout.database.apiRequest<null>(`this.record.endpoint/containers/${this.id}/1`, {
             method: "POST",
             // @ts-ignore
             headers: {"Authorization": "Bearer " + this.record.layout.database.token},
@@ -150,6 +150,7 @@ export class Field<T extends FieldValue> {
     async download(mode: DOWNLOAD_MODES = DOWNLOAD_MODES.Stream): Promise<http.IncomingMessage | ContainerBufferResult> {
         if (this.metadata.result !== ApiFieldResultTypes.CONTAINER) throw new Error("Cannot perform download() on a non-container field")
 
+        // @ts-ignore
         let stream = await this.record.layout.database.streamURL(this.string)
         if (mode === DOWNLOAD_MODES.Stream) {
             return stream

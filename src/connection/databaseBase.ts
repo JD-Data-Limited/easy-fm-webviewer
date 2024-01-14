@@ -7,5 +7,6 @@ import {RequestItem} from "./requestItem";
 export interface DatabaseBase {
     timezoneOffset: number
     request<D = any>(item: RequestData): RequestItem<D>
+    apiRequest<T>(...args): any
 }
 

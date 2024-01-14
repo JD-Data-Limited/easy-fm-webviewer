@@ -2,7 +2,7 @@
  * Copyright (c) 2023. See LICENSE file for more information
  */
 
-import {PortalRecord} from "./portalRecord.js";
+import {PortalRecord} from "./portalRecord";
 import {RecordFieldsMap} from "../layouts/recordFieldsMap";
 import {PortalBase} from "./portalBase";
 import {LayoutRecordBase} from "./layoutRecordBase";

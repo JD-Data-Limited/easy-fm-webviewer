@@ -5,7 +5,7 @@
 // const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 // @ts-ignore
 import * as http from "http";
-import {FMError} from "./FMError.js";
+import {FMError} from "./FMError";
 import {LayoutInterface} from "./layouts/layoutInterface";
 
 // import * as btoa from "btoa";

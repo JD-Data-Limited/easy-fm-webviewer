@@ -2,11 +2,11 @@
  * Copyright (c) 2023. See LICENSE file for more information
  */
 
-import {LayoutRecordManager} from "./layoutRecordManager.js";
-import {Script, ScriptResult} from "../types.js";
-import {LayoutInterface} from "./layoutInterface.js";
-import {FMError} from "../FMError.js";
-import {LayoutBase} from "./layoutBase.js"
+import {LayoutRecordManager} from "./layoutRecordManager";
+import {Script, ScriptResult} from "../types";
+import {LayoutInterface} from "./layoutInterface";
+import {FMError} from "../FMError";
+import {LayoutBase} from "./layoutBase"
 import {DatabaseBase} from "../connection/databaseBase";
 import {ApiLayoutMetadata, ApiResults, ApiScriptResult} from "../models/apiResults";
 import {REQUEST_TYPES} from "../models/fmScriptData";

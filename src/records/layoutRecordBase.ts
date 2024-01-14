@@ -2,7 +2,7 @@
  * Copyright (c) 2023. See LICENSE file for more information
  */
 
-import {LayoutBase} from "../layouts/layoutBase.js"
+import {LayoutBase} from "../layouts/layoutBase"
 
 export interface LayoutRecordBase {
     layout: LayoutBase

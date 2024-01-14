@@ -2,11 +2,11 @@
  * Copyright (c) 2023. See LICENSE file for more information
  */
 
-import {LayoutInterface} from "../../layouts/layoutInterface.js";
-import {RecordGetOperation} from "./recordGetOperation.js";
-import {LayoutRecord} from "../layoutRecord.js";
-import {extraBodyOptions} from "../../types.js";
-import {FMError} from "../../FMError.js";
+import {LayoutInterface} from "../../layouts/layoutInterface";
+import {RecordGetOperation} from "./recordGetOperation";
+import {LayoutRecord} from "../layoutRecord";
+import {extraBodyOptions} from "../../types";
+import {FMError} from "../../FMError";
 import {ApiRecordResponseObj} from "../../models/apiResults";
 
 export class RecordGetRange<T extends LayoutInterface> extends RecordGetOperation<T> {
@@ -57,7 +57,7 @@ export class RecordGetRange<T extends LayoutInterface> extends RecordGetOperatio
     async fetch(extraBody: extraBodyOptions = {}): Promise<LayoutRecord<T["fields"], T["portals"]>[]> {
         let trace = new Error()
         let res = await this.layout.getLayoutMeta().then(() => {
-            return this.layout.database.apiRequest<ApiRecordResponseObj>(`${this.layout.endpoint}/records${this.generateQueryParams(extraBody)}`, {
+            return this.layout.database.apiRequest<ApiRecordResponseObj>(`this.layout.endpoint/records${this.generateQueryParams(extraBody)}`, {
                 method: "GET"
             })
         })

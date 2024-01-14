@@ -3,21 +3,15 @@
  */
 
 import {EventEmitter} from "events";
-import fetch, {HeadersInit, Request} from "node-fetch";
-import {generateAuthorizationHeaders} from "./generateAuthorizationHeaders.js";
-import {FMError} from "../FMError.js";
-import {LayoutInterface} from "../layouts/layoutInterface.js";
-import {Layout} from "../layouts/layout.js";
+import {LayoutInterface} from "../layouts/layoutInterface";
+import {Layout} from "../layouts/layout";
 import {
     databaseOptionsBase,
-    databaseOptionsWithExternalSources, DatabaseStructure,
+    DatabaseStructure,
     loginOptionsFileMaker,
-    loginOptionsToken,
     Script
-} from "../types.js";
-import {HostBase} from "./HostBase.js"
+} from "../types";
 import {DatabaseBase} from "./databaseBase";
-import {ApiLayout, ApiResults} from "../models/apiResults";
 import {RequestData, WebToFileMaker} from "../models/fmScriptData";
 import {RequestItem} from "./requestItem";
 import * as crypto from "crypto";
@@ -35,12 +29,16 @@ declare global {
 
 export class Database<T extends DatabaseStructure> extends EventEmitter implements DatabaseBase {
     protected pendingRequests = new Map<string, RequestItem<any>>()
-    protected readonly privateKey: string = ""
+    protected privateKey: string = ""
     protected requestTimeout: NodeJS.Timeout
     readonly timezoneOffset = new Date().getTimezoneOffset()
 
     constructor() {
         super()
+    }
+
+    apiRequest(...args): any {
+        return
     }
 
     private generateExternalSourceLogin(data: databaseOptionsBase) {
@@ -73,7 +71,7 @@ export class Database<T extends DatabaseStructure> extends EventEmitter implemen
 
     request<D = any>(item: RequestData) {
         let requestItem = new RequestItem<D>(item)
-        let id = crypto.randomUUID()
+        let id = window.crypto.randomUUID()
         this.pendingRequests.set(id, requestItem)
         if (this.requestTimeout) clearTimeout(this.requestTimeout)
 
@@ -93,6 +91,7 @@ export class Database<T extends DatabaseStructure> extends EventEmitter implemen
             private_key: this.privateKey,
             requests
         }
+        window.FileMaker.PerformScript("EASYFM_RESPONDER", JSON.stringify(data))
     }
 
     processRequestsIn(data: [string, any][]) {
@@ -104,6 +103,10 @@ export class Database<T extends DatabaseStructure> extends EventEmitter implemen
             req._resolve(item[1])
         }
     }
+
+    setKey(key: string) {
+        this.privateKey = key
+    }
 }
 
 let database = new Database()
@@ -111,6 +114,7 @@ window.EasyFMDataIn = (data: string)=>  {
     database.processRequestsIn(JSON.parse(data))
 }
 
-export function getDatabaseConnection() {
+export function getDatabaseConnection(privateKey: string) {
+    database.setKey(privateKey)
     return database
 }

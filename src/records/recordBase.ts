@@ -4,9 +4,9 @@
 
 import {EventEmitter} from "events";
 import * as moment from "moment";
-import {Field} from "./field.js";
-import {Layout} from "../layouts/layout.js";
-import {recordObject} from "../types.js";
+import {Field} from "./field";
+import {Layout} from "../layouts/layout";
+import {recordObject} from "../types";
 import {RecordFieldsMap} from "../layouts/recordFieldsMap";
 
 export enum RecordTypes {

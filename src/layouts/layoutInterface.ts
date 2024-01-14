@@ -2,7 +2,7 @@
  * Copyright (c) 2023. See LICENSE file for more information
  */
 
-import {Portal} from "../records/portal.js";
+import {Portal} from "../records/portal";
 import {RecordFieldsMap} from "./recordFieldsMap";
 
 export interface LayoutInterface {

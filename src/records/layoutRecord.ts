@@ -2,12 +2,12 @@
  * Copyright (c) 2023. See LICENSE file for more information
  */
 
-import {extraBodyOptions, recordObject} from "../types.js";
-import {RecordBase} from "./recordBase.js";
-import {PortalRecord} from "./portalRecord.js";
-import {Portal} from "./portal.js";
-import {PortalInterface} from "../layouts/layoutInterface.js";
-import {FMError} from "../FMError.js";
+import {extraBodyOptions, recordObject} from "../types";
+import {RecordBase} from "./recordBase";
+import {PortalRecord} from "./portalRecord";
+import {Portal} from "./portal";
+import {PortalInterface} from "../layouts/layoutInterface";
+import {FMError} from "../FMError";
 import {RecordFieldsMap} from "../layouts/recordFieldsMap";
 import {LayoutRecordBase} from "./layoutRecordBase";
 import {ApiRecordResponseObj, ApiResults, ApiResultSetObj} from "../models/apiResults";
@@ -53,7 +53,7 @@ export class LayoutRecord<T extends RecordFieldsMap, P extends PortalInterface> 
                 type: REQUEST_TYPES.CreateRecord
             })
 
-             let res = await this.layout.database.apiRequest<{ recordId: string, modId: string }>(`${this.layout.endpoint}/records`, {
+             let res = await this.layout.database.apiRequest<{ recordId: string, modId: string }>(`this.layout.endpoint/records`, {
                     port: 443,
                     method: "POST",
                     body: JSON.stringify(data)
@@ -79,7 +79,7 @@ export class LayoutRecord<T extends RecordFieldsMap, P extends PortalInterface> 
                 recordId: string,
                 modId: string
             }[]
-        }>(this.endpoint, {
+        }>("this.endpoint", {
             port: 443,
             method: "PATCH",
             body: JSON.stringify(data)
@@ -118,7 +118,7 @@ export class LayoutRecord<T extends RecordFieldsMap, P extends PortalInterface> 
             throw "Cannot get this RecordBase until a commit() is done."
         }
         if (!this.layout.metadata) await this.layout.getLayoutMeta()
-        let res = await this.layout.database.apiRequest<ApiRecordResponseObj>(this.endpoint, {
+        let res = await this.layout.database.apiRequest<ApiRecordResponseObj>("this.endpoint", {
             port: 443,
             method: "GET"
         })
@@ -139,7 +139,7 @@ export class LayoutRecord<T extends RecordFieldsMap, P extends PortalInterface> 
 
     async duplicate(): Promise<LayoutRecord<T, P>> {
         let trace = new Error()
-        let res = await this.layout.database.apiRequest<{recordId: string, modId: string}>(this.endpoint, {
+        let res = await this.layout.database.apiRequest<{recordId: string, modId: string}>("this.endpoint", {
             port: 443,
             method: "POST"
         })
@@ -159,7 +159,7 @@ export class LayoutRecord<T extends RecordFieldsMap, P extends PortalInterface> 
     }
 
     async delete(): Promise<void> {
-        let res = await this.layout.database.apiRequest(this.endpoint, {
+        let res = await this.layout.database.apiRequest("this.endpoint", {
             port: 443,
             method: "DELETE"
         })

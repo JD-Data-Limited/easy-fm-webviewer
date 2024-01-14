@@ -2,8 +2,8 @@
  * Copyright (c) 2023. See LICENSE file for more information
  */
 
-import {RecordBase, RecordTypes} from "./recordBase.js";
-import {extraBodyOptions, recordObject} from "../types.js";
+import {RecordBase, RecordTypes} from "./recordBase";
+import {extraBodyOptions, recordObject} from "../types";
 
 import {RecordFieldsMap} from "../layouts/recordFieldsMap";
 import {PortalBase} from "./portalBase";

@@ -8,7 +8,7 @@ import {
     loginOptionsClaris,
     loginOptionsFileMaker,
     loginOptionsOAuth
-} from "../types.js";
+} from "../types";
 
 export function generateAuthorizationHeaders(credentials: loginOptionsOAuth | loginOptionsFileMaker | loginOptionsClaris): AuthorizationHeaders | AuthorizationHeadersOAuth {
     switch (credentials.method) {

@@ -2,11 +2,11 @@
  * Copyright (c) 2023. See LICENSE file for more information
  */
 
-import {RecordGetOperation} from "./recordGetOperation.js";
-import {LayoutRecord} from "../layoutRecord.js";
+import {RecordGetOperation} from "./recordGetOperation";
+import {LayoutRecord} from "../layoutRecord";
 import {LayoutInterface} from "../../layouts/layoutInterface";
-import {LayoutBase} from "../../layouts/layoutBase.js";
-import {FMError} from "../../FMError.js";
+import {LayoutBase} from "../../layouts/layoutBase";
+import {FMError} from "../../FMError";
 import {ApiRecordResponseObj} from "../../models/apiResults";
 
 export class Find<T extends LayoutInterface> extends RecordGetOperation<T> {
@@ -58,7 +58,7 @@ export class Find<T extends LayoutInterface> extends RecordGetOperation<T> {
     async fetch(): Promise<LayoutRecord<T["fields"], T["portals"]>[]> {
         let trace = new Error()
         await this.layout.getLayoutMeta()
-        let res = await this.layout.database.apiRequest<ApiRecordResponseObj>(`${this.layout.endpoint}/_find`, {
+        let res = await this.layout.database.apiRequest<ApiRecordResponseObj>(`this.layout.endpoint/_find`, {
             port: 443,
             method: "POST",
             body: JSON.stringify(this.toObject())

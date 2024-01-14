@@ -2,11 +2,11 @@
  * Copyright (c) 2023. See LICENSE file for more information
  */
 
-import {LayoutRecord} from "../records/layoutRecord.js";
-import {LayoutInterface} from "./layoutInterface.js";
-import {RecordGetRange} from "../records/getOperations/recordGetRange.js";
-import {Find} from "../records/getOperations/find.js";
-import {LayoutBase} from "./layoutBase.js"
+import {LayoutRecord} from "../records/layoutRecord";
+import {LayoutInterface} from "./layoutInterface";
+import {RecordGetRange} from "../records/getOperations/recordGetRange";
+import {Find} from "../records/getOperations/find";
+import {LayoutBase} from "./layoutBase"
 
 export class LayoutRecordManager<T extends LayoutInterface> {
     readonly layout: LayoutBase
