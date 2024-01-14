@@ -4,7 +4,8 @@
     "module": "es2022",
     "lib": ["es2021.intl", "dom"],
     "moduleResolution": "Node",
-    "declaration": true
+    "declaration": true,
+    "outDir": "./dist"
   },
   "exclude": [
     "node_modules"
