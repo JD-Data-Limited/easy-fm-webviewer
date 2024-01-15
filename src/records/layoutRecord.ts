@@ -1,25 +1,32 @@
 /*
- * Copyright (c) 2023. See LICENSE file for more information
+ * Copyright (c) 2023-2024. See LICENSE file for more information
  */
 
 import {extraBodyOptions, recordObject} from "../types";
 import {RecordBase} from "./recordBase";
 import {PortalRecord} from "./portalRecord";
 import {Portal} from "./portal";
-import {PortalInterface} from "../layouts/layoutInterface";
+import {LayoutInterface} from "../layouts/layoutInterface";
 import {FMError} from "../FMError";
-import {RecordFieldsMap} from "../layouts/recordFieldsMap";
 import {LayoutRecordBase} from "./layoutRecordBase";
 import {ApiRecordResponseObj, ApiResults, ApiResultSetObj} from "../models/apiResults";
 import {REQUEST_TYPES} from "../models/fmScriptData";
 
-export class LayoutRecord<T extends RecordFieldsMap, P extends PortalInterface> extends RecordBase<T> implements LayoutRecordBase {
+export class LayoutRecord<LAYOUT extends LayoutInterface, PORTALS_TO_INCLUDE = string> extends RecordBase<LAYOUT["fields"]> implements LayoutRecordBase {
     // @ts-ignore
-    portals: P = {}
+    portals: Pick<LAYOUT["portals"], PORTALS_TO_INCLUDE> = {}
+    private readonly portalsToInclude: PORTALS_TO_INCLUDE[]
 
-    constructor(layout, recordId, modId = recordId, fieldData = {}, portalData = null) {
+    constructor(
+        layout: LayoutBase,
+        recordId: number | string,
+        modId = recordId,
+        fieldData: Record<string, string | number> = {},
+        portalData = null, portalsToInclude: PORTALS_TO_INCLUDE[] = [])
+    {
         super(layout, recordId, modId);
         this.processFieldData(fieldData)
+        this.portalsToInclude = portalsToInclude
         if (portalData) {
             this.processPortalData(portalData)
         }
@@ -137,7 +144,7 @@ export class LayoutRecord<T extends RecordFieldsMap, P extends PortalInterface> 
         return this.portalsArray.find(p => p.name === portal)
     }
 
-    async duplicate(): Promise<LayoutRecord<T, P>> {
+    async duplicate(): Promise<LayoutRecord<LAYOUT>> {
         let trace = new Error()
         let res = await this.layout.database.apiRequest<{recordId: string, modId: string}>("this.endpoint", {
             port: 443,
@@ -148,7 +155,7 @@ export class LayoutRecord<T extends RecordFieldsMap, P extends PortalInterface> 
         }
         else if (res.messages[0].code === "0") {
             let data = this.toObject((a) => true, (a) => true, (a) => false, (a) => false)
-            let _res = new LayoutRecord<T, P>(this.layout, res.response.recordId, res.response.modId, data.fieldData, data.portalData)
+            let _res = new LayoutRecord<LAYOUT>(this.layout, res.response.recordId, res.response.modId, data.fieldData, data.portalData)
 
             this.emit("duplicated")
             return _res

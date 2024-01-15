@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. See LICENSE file for more information
+ * Copyright (c) 2023-2024. See LICENSE file for more information
  */
 
 import {LayoutRecordManager} from "./layoutRecordManager";
@@ -13,8 +13,8 @@ import {REQUEST_TYPES} from "../models/fmScriptData";
 
 export class Layout<T extends LayoutInterface> implements LayoutBase {
     readonly database: DatabaseBase;
-    readonly records = new LayoutRecordManager<T>(this)
     readonly name: string;
+    readonly records = new LayoutRecordManager<T>(this)
     metadata: ApiLayoutMetadata;
 
     constructor(database: DatabaseBase, name: string) {
