@@ -4,9 +4,9 @@
 
 import {LayoutRecord} from "../records/layoutRecord";
 import {LayoutInterface} from "./layoutInterface";
-import {RecordGetRange} from "../records/getOperations/recordGetRange";
-import {Find} from "../records/getOperations/find";
 import {LayoutBase} from "./layoutBase"
+import {GetOperationOptions, RecordGetOperation} from "../records/getOperations/recordGetOperation";
+import {RecordFetchOptions} from "../types";
 
 export class LayoutRecordManager<T extends LayoutInterface> {
     readonly layout: LayoutBase;

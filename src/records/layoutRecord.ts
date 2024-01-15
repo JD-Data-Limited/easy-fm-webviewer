@@ -11,6 +11,7 @@ import {FMError} from "../FMError";
 import {LayoutRecordBase} from "./layoutRecordBase";
 import {ApiRecordResponseObj, ApiResults, ApiResultSetObj} from "../models/apiResults";
 import {REQUEST_TYPES} from "../models/fmScriptData";
+import {LayoutBase} from "../layouts/layoutBase";
 
 export class LayoutRecord<LAYOUT extends LayoutInterface, PORTALS_TO_INCLUDE = string> extends RecordBase<LAYOUT["fields"]> implements LayoutRecordBase {
     // @ts-ignore

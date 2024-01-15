@@ -129,7 +129,7 @@ export class RecordGetOperation<T extends LayoutInterface, OPTIONS extends GetOp
         await this.layout.getLayoutMeta()
 
         const is_find = this.isFindRequest
-        let endpoint = this.layout.endpoint + (is_find ? "/_find" : "/records")
+        let endpoint = "this.layout.endpoint" + (is_find ? "/_find" : "/records")
         if (!is_find) endpoint += "?" + new URLSearchParams(this.generateParamsURL(offset, limit)).toString()
         const reqData = {
             // port: 443,
