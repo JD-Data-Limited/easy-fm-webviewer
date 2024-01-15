@@ -23,19 +23,19 @@ export class Layout<T extends LayoutInterface> implements LayoutBase {
     }
 
     async runScript(script: Script): Promise<ScriptResult> {
-        let req = this.database.request<ApiResults<ApiScriptResult>>({
+        let req = this.database.request<ApiScriptResult>({
             type: REQUEST_TYPES.RunScript,
+            layout: this.name,
             name: script.name,
             parameter: script.parameter
         })
         let res = await req.async()
+        console.log(res)
 
-        if (res.messages[0].code === "0") {
-            let error = parseInt(res.response.scriptError)
-            return {
-                scriptError: error ? new FMError(error, 200, res) : undefined,
-                scriptResult: res.response.scriptResult
-            }
+        let error = parseInt(res.scriptError)
+        return {
+            scriptError: error ? new FMError(error, 200, res) : undefined,
+            scriptResult: res.scriptResult
         }
     }
 

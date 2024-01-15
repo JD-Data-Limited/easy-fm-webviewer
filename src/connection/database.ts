@@ -23,7 +23,7 @@ declare global {
         FileMaker: {
             PerformScript(name: string, parameter?: string): void
         },
-        EasyFMDataIn(data: string): void
+        EASY_FM_DATA_IN(data: string): void
     }
 }
 
@@ -77,7 +77,7 @@ export class Database<T extends DatabaseStructure> extends EventEmitter implemen
 
         this.requestTimeout = setTimeout(() => {
             this.processRequestsOut();
-        }, 1000);
+        }, 100);
 
         return requestItem
     }
@@ -85,7 +85,11 @@ export class Database<T extends DatabaseStructure> extends EventEmitter implemen
     processRequestsOut() {
         this.pendingRequests
         let requests: any[] = []
-        for (let item of this.pendingRequests) requests.push({id: item[0], ...item[1].data})
+        for (let item of this.pendingRequests) {
+            if (item[1].sent) continue
+            item[1].sent = true
+            requests.push({id: item[0], ...item[1].data})
+        }
 
         const data: WebToFileMaker = {
             private_key: this.privateKey,
@@ -110,8 +114,12 @@ export class Database<T extends DatabaseStructure> extends EventEmitter implemen
 }
 
 let database = new Database()
-window.EasyFMDataIn = (data: string)=>  {
-    database.processRequestsIn(JSON.parse(data))
+window.EASY_FM_DATA_IN = (data: string)=>  {
+    try {
+        database.processRequestsIn(JSON.parse(data))
+    } catch (e) {
+        console.error(e)
+    }
 }
 
 export function getDatabaseConnection(privateKey: string) {

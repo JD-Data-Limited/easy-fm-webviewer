@@ -3,6 +3,7 @@ import {RequestData} from "../models/fmScriptData";
 export class RequestItem<T = unknown> {
     private _callback = (data: T) => {}
     readonly data: Omit<RequestData, "id">;
+    sent = false
 
     constructor(data: Omit<RequestData, "id">) {
         this.data = data

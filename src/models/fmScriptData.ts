@@ -42,6 +42,7 @@ export type GetLayoutMetadata = RequestDataBase & {
 
 export type RunScript = RequestDataBase & {
     type: REQUEST_TYPES.RunScript,
+    layout: string,
     name: string,
     parameter?: string
 }
