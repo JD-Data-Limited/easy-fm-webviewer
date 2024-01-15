@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. See LICENSE file for more information
+ * Copyright (c) 2023-2024. See LICENSE file for more information
  */
 
 import {EventEmitter} from "events";
@@ -55,9 +55,9 @@ export class Database<T extends DatabaseStructure> extends EventEmitter implemen
         }
     }
 
-    getLayout<R extends string>(name: R): Layout<T["layouts"][R]>
+    getLayout<R extends keyof T["layouts"]>(name: R): Layout<T["layouts"][R]>
     getLayout<R extends LayoutInterface>(name: string): Layout<R>
-    getLayout(name: string): Layout<LayoutInterface> {
+    getLayout(name: string): Layout<any> {
         return new Layout<LayoutInterface>(this, name)
     }
 

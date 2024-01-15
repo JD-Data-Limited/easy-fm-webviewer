@@ -1,6 +1,6 @@
 {
   "name": "@jd-data-limited/easy-fm",
-  "version": "3.2.7",
+  "version": "3.2.8",
   "dependencies": {
     "crypto-browserify": "^3.12.0",
     "moment": "^2.29.4",
