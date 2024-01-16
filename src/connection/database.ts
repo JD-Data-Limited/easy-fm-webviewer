@@ -22,6 +22,16 @@ declare global {
     }
 }
 
+function uuidv4() {
+    if (window.crypto.randomUUID) return window.crypto.randomUUID()
+    return "10000000-1000-4000-8000-100000000000".replace(/[018]/g, c =>
+        // SOURCE: https://stackoverflow.com/questions/105034/how-do-i-create-a-guid-uuid
+        // @ts-ignore
+        (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+    );
+}
+
+
 export class Database<T extends DatabaseStructure> extends EventEmitter implements DatabaseBase {
     protected pendingRequests = new Map<string, RequestItem<any>>()
     protected privateKey: string = ""
@@ -67,8 +77,6 @@ export class Database<T extends DatabaseStructure> extends EventEmitter implemen
         return record
     }
 
-
-
     script(name, parameter = ""): Script {
         return ({name, parameter} as Script)
     }
@@ -79,7 +87,7 @@ export class Database<T extends DatabaseStructure> extends EventEmitter implemen
 
     request<D = any>(item: RequestData) {
         let requestItem = new RequestItem<D>(item)
-        let id = window.crypto.randomUUID()
+        let id = uuidv4()
         this.pendingRequests.set(id, requestItem)
         if (this.requestTimeout) clearTimeout(this.requestTimeout)
 
