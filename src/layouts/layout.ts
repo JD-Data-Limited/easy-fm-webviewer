@@ -34,7 +34,7 @@ export class Layout<T extends LayoutInterface> implements LayoutBase {
 
         let error = parseInt(res.scriptError)
         return {
-            scriptError: error ? new FMError(error, 200, res) : undefined,
+            scriptError: error ? new FMError(error) : undefined,
             scriptResult: res.scriptResult
         }
     }

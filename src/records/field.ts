@@ -8,6 +8,8 @@ import * as http from "http";
 import {ContainerBufferResult, DOWNLOAD_MODES, FieldMetaData} from "../types";
 import {FMError} from "../FMError";
 import {ApiFieldDisplayTypes, ApiFieldMetadata, ApiFieldResultTypes, ApiFieldTypes} from "../models/apiResults";
+import {REQUEST_TYPES} from "../models/fmScriptData";
+import mime from 'mime';
 
 export type FieldValue = string | number | Date | Container
 export type Container = null
@@ -143,6 +145,31 @@ export class Field<T extends FieldValue> {
             headers: {"Authorization": "Bearer " + this.record.layout.database.token},
             body: form
         })
+    }
+
+    async getURL() {
+        if (this._value.toString().includes("://")) return this._value
+
+        // If the value is not a URL, request a base64 version from FileMaker Pro
+        let req = this.record.layout.database.request<{ error?: number, data: string }>({
+            type: REQUEST_TYPES.ContainerDataRequest,
+            layout: this.record.layout.name,
+            recordId: this.record.recordId,
+            fieldId: this.id
+        })
+        let res = await req.async()
+
+        if (res.error) {
+            throw new FMError(res.error)
+        }
+
+        // Get the file's MIME type
+        let mimetype = mime.getType(this._value.toString())
+        let path = `data:${mimetype};base64,${res.data}`
+
+        let fetchReq = await fetch(path)
+        let blob = await fetchReq.blob()
+        return URL.createObjectURL(blob)
     }
 
     download(mode: DOWNLOAD_MODES.Stream): Promise<http.IncomingMessage>

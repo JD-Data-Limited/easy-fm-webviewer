@@ -1015,18 +1015,12 @@ export const errs = [
 ]
 
 export class FMError extends Error {
-    readonly httpStatus: number
-    readonly res: any
     readonly code: number
-    readonly message: string
-    readonly messages: string
 
-    constructor(code: string | number, httpStatus: number, res: any, trace?: Error) {
+    constructor(code: string | number, trace?: Error) {
         if (typeof code === "string") code = parseInt(code)
         super(errs.find(err => err.e === code)?.d || "Unknown error");
-        this.httpStatus = httpStatus
-        this.res = res
-        this.messages = res.messages
+        this.name = "FileMaker Error"
         this.code = typeof code === "string" ? parseInt(code) : code
         Error.captureStackTrace(this, FMError)
 
