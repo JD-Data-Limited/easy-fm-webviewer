@@ -1,6 +1,10 @@
-# easy-fm
+# easy-fm-webviewer
 
-Making NodeJS + FileMaker easier than ever
+Adds methods to allow for better interactivity between a FileMaker database, and webviewers within it.
+easy-fm-webviewer gives webviewers the ability to access information within the database.
+
+> This package is a fork of [@jd-data-limited/easy-fm](https://www.npmjs.com/package/@jd-data-limited/easy-fm).
+> Please note though that some actions may require slightly different steps, such as connecting to the database.
 
 easy-fm is a Node.js module that allows you to interact with
 a [FileMaker database](https://www.claris.com/filemaker/) stored on
@@ -8,33 +12,72 @@ a [FileMaker server](https://www.claris.com/filemaker/server/)
 or [FileMaker Cloud](https://store.claris.com/filemaker-cloud). This module interacts with your server using the
 [FileMaker Data API](https://help.claris.com/en/data-api-guide/content/index.html).
 <!-- TOC -->
-* [easy-fm](#easy-fm)
-  * [FileMaker setup instructions](#filemaker-setup-instructions)
-  * [Before you begin](#before-you-begin)
-  * [Connecting to a database](#connecting-to-a-database)
-  * [Getting records](#getting-records)
-    * [Fetch a range of records](#fetch-a-range-of-records)
-    * [Searching for records](#searching-for-records)
-    * [Fetch a record using its record ID (NOT RECOMMENDED)](#fetch-a-record-using-its-record-id-not-recommended)
-    * [Create a record](#create-a-record)
-    * [Modify a record](#modify-a-record)
+
+* [easy-fm-webviewer](#easy-fm-webviewer)
+    * [Security](#security)
+    * [FileMaker setup instructions](#filemaker-setup-instructions)
+    * [Before you begin](#before-you-begin)
+    * [Connecting to a database](#connecting-to-a-database)
+    * [Getting records](#getting-records)
+        * [Fetch a range of records](#fetch-a-range-of-records)
+        * [Searching for records](#searching-for-records)
+        * [Fetch a record using its record ID (NOT RECOMMENDED)](#fetch-a-record-using-its-record-id-not-recommended)
+        * [Create a record](#create-a-record)
+        * [Modify a record](#modify-a-record)
 * [Field names](#field-names)
 * [Portal names](#portal-names)
 * [Typescript Implementation](#typescript-implementation)
+
 <!-- TOC -->
+
+## Security
+
+Before installing this package, it is important that you know what risks you may be taking by using this package. As
+well as what you can do to stay secure.
+
+- EasyFM acts on behalf of the logged-in user. This means that EasyFM has access to the same data that the current user
+  does.
+- EasyFM-webviewer *does not* provide direct access to the following information:
+    - Database name
+    - Database host information
+    - List of layout names
+    - List of script names
+    - Modify database schema/security
+    - Modify layout contents
+- EasyFM-webviewer *does* provide access to the following data/actions:
+    - Layout metadata
+    - Execute scripts
+    - Create, read, update, and delete records
+    - Perform searches
+
+EasyFM also uses the following to ensure security:
+
+- EasyFM can only be used when a WebViewer is in-focus
+- The WebViewer is required to pass a given private key to FileMaker with every request. If this key is incorrect, the
+  request will fail and the user will be alerted.
+
 ## FileMaker setup instructions
 
-1. Enable the FileMaker Data API from the server's admin console. This setting is located
-   in `Connectors > FileMaker Data API`.
-2. Create a FileMaker database account for easy-fm to use. This account must have the 'Access via FileMaker Data API (
-   fmrest)' extended privilege
+1. Connect to/open your target database with FileMaker Pro
+    - Ensure that you open the database with an account that has [Full Access] rights
+2. Download and open [EasyFMLocalBenchmark.fmp12](./downloads/EasyFMLocalBenchmark.fmp12)
+3. Open the script manager for EasyFMLocalBenchmark.fmp12
+4. From the script manager, higlight and copy the following scripts. You *must not* change the names of the scripts, or
+   else EasyFM will not work.
+    - EASYFM_PROCESSOR
+    - EASYFM_RESPONDER
+5. Open the script manager in your target database, and paste them.
+6. In the script manager for your target database, double click and open the `EASYFM_RESPONDER` script.
+
+You can now use EasyFM in your project! Please note that 
 
 ---
 
 ## Before you begin
 
 - You need to know what your server's UTC time offset (in minutes) is.
-    - Running `0 - (new Date()).getTimezoneOffset()` in javascript will give you the UTC time offset for your current timezone.
+    - Running `0 - (new Date()).getTimezoneOffset()` in javascript will give you the UTC time offset for your current
+      timezone.
 
 ## Connecting to a database
 
@@ -152,7 +195,8 @@ When interacting with FileMaker, it is important to remember how FileMaker field
 
 > Please read this section carefully if you are working with portals
 
-It is important to note that a portal's name **is not** the same as the name of the table that it links to. The name of a
+It is important to note that a portal's name **is not** the same as the name of the table that it links to. The name of
+a
 portal matches the object name it was assigned in FileMaker's layout editor.
 
 > **NOTE**: When no name has been manually assigned to it, it will default to the name of the related table.

@@ -3,7 +3,6 @@
  */
 
 import {EventEmitter} from "events";
-import * as moment from "moment";
 import {Field} from "./field";
 import {Layout} from "../layouts/layout";
 import {recordObject} from "../types";
@@ -45,28 +44,19 @@ export class RecordBase<T extends RecordFieldsMap> extends EventEmitter {
             let _field = new Field(this, key, fieldData[key])
             if (!!fieldData[key]) {
                 if (_field.metadata.result === "timeStamp") {
-                    // @ts-ignore
-                    let date = moment.default(fieldData[key], this.layout.database.host.metadata.productInfo.timeStampFormat.replace("dd", "DD"))
-                        .utcOffset(this.layout.database.timezoneOffset, true)
-                        .local()
-                    _field.set(date.toDate())
+                    let date = new Date(fieldData[key])
+                    _field.set(date)
                     _field.edited = false
 
                 }
                 else if (_field.metadata.result === "time") {
-                    // @ts-ignore
-                    let date = moment.default(fieldData[key], this.layout.database.host.metadata.productInfo.timeFormat.replace("dd", "DD"))
-                        .utcOffset(this.layout.database.timezoneOffset, true)
-                        .local()
-                    _field.set(date.toDate())
+                    let date = new Date(fieldData[key])
+                    _field.set(date)
                     _field.edited = false
                 }
                 else if (_field.metadata.result === "date") {
-                    // @ts-ignore
-                    let date = moment.default(fieldData[key], this.layout.database.host.metadata.productInfo.dateFormat.replace("dd", "DD"))
-                        .utcOffset(this.layout.database.timezoneOffset, true)
-                        .local()
-                    _field.set(date.toDate())
+                    let date = new Date(fieldData[key])
+                    _field.set(date)
                     _field.edited = false
                 }
             }

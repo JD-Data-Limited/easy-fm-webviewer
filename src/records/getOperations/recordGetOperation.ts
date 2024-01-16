@@ -6,8 +6,9 @@ import {LayoutInterface} from "../../layouts/layoutInterface";
 import {ScriptRequestData} from "../../types";
 import {LayoutBase} from "../../layouts/layoutBase"
 import {LayoutRecord} from "../layoutRecord";
-import {ApiRecordResponseObj} from "../../models/apiResults";
+import {ApiRecordResponseObj, ApiResults} from "../../models/apiResults";
 import {FMError} from "../../FMError";
+import {REQUEST_TYPES} from "../../models/fmScriptData";
 
 export type SortOrder = "ascend" | "descend"
 export type FindRequest = {
@@ -52,7 +53,7 @@ export class RecordGetOperation<T extends LayoutInterface, OPTIONS extends GetOp
     }
 
     protected generateParamsBody(offset: number, limit: number) {
-        const params: {[key: string]: any} = {
+        const params: { [key: string]: any } = {
             limit: limit.toString(),
             offset: offset.toString(),
         }
@@ -79,6 +80,7 @@ export class RecordGetOperation<T extends LayoutInterface, OPTIONS extends GetOp
 
         return params
     }
+
     protected generateParamsURL(offset: number, limit: number) {
         const params = new URLSearchParams({
             _limit: limit.toString(),
@@ -128,19 +130,16 @@ export class RecordGetOperation<T extends LayoutInterface, OPTIONS extends GetOp
         let trace = new Error()
         await this.layout.getLayoutMeta()
 
-        const is_find = this.isFindRequest
-        let endpoint = "this.layout.endpoint" + (is_find ? "/_find" : "/records")
-        if (!is_find) endpoint += "?" + new URLSearchParams(this.generateParamsURL(offset, limit)).toString()
-        const reqData = {
-            // port: 443,
-            method: is_find ? "POST" : "GET",
-            body: is_find ? JSON.stringify(this.generateParamsBody(offset, limit)) : undefined,
-        }
+        let req = this.layout.database.request<ApiResults<ApiRecordResponseObj>>({
+            type: REQUEST_TYPES.RAW,
+            version: "v2",
+            dateformats: "2",
+            layouts: this.layout.name,
+            ...this.generateParamsBody(offset, limit)
+        })
 
-        let res = await this.layout.database.apiRequest<ApiRecordResponseObj>(
-            endpoint,
-            reqData
-        )
+        let res = await req.async()
+        console.log(res)
         if (res.messages[0].code === "0") {
             // console.log("RESOLVING")
             if (!this.layout.metadata) await this.layout.getLayoutMeta()
@@ -153,7 +152,7 @@ export class RecordGetOperation<T extends LayoutInterface, OPTIONS extends GetOp
             return []
         }
         else {
-            throw new FMError(res.messages[0].code, res.httpStatus, res, trace)
+            throw new FMError(res.messages[0].code, trace)
         }
     }
 

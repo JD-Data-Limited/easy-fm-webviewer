@@ -1,5 +1,8 @@
+import {portalDataObject} from "../types";
+
 export enum REQUEST_TYPES {
-    GetDBMetadata,
+    RAW = -1,
+    GetDBMetadata = 0,
     GetLayoutMetadata,
     RunScript,
     GetRecordRange,
@@ -8,12 +11,13 @@ export enum REQUEST_TYPES {
     ModifyRecord,
     DuplicateRecord,
     DeleteRecord,
-    GetRecord,
-    UploadContainer
+    ContainerDataRequest,
+    GetCurrentRecord,
 }
 
 export type RequestDataBase = {}
 export type RequestData =
+    RawRequest |
     GetDBMetadata |
     GetLayoutMetadata |
     RunScript |
@@ -24,11 +28,20 @@ export type RequestData =
     DuplicateRecord |
     DeleteRecord |
     GetRecord |
-    UploadContainer
+    ContainerDataRequest
 
 export type WebToFileMaker = {
     private_key: string,
+    dataVersion: number,
     requests: RequestData[]
+}
+
+export type RawRequest = RequestDataBase & {
+    type: REQUEST_TYPES.RAW,
+    dateformats: "2",
+    version: "v2",
+    layouts: string,
+    [key: string]: string | number
 }
 
 export type GetDBMetadata = RequestDataBase & {
@@ -48,33 +61,61 @@ export type RunScript = RequestDataBase & {
 }
 
 export type GetRecordRange = RequestDataBase & {
-    type: REQUEST_TYPES.GetRecordRange
+    type: REQUEST_TYPES.GetRecordRange,
+    layout: string,
+    limit: number,
+    offset: number
 }
 
 export type FindRecord = RequestDataBase & {
-    type: REQUEST_TYPES.FindRecord
+    type: REQUEST_TYPES.FindRecord,
+    layout: string,
+    limit: number,
+    offset: number,
+    query: {
+        [key: string]: string
+        omit?: "true" | "false"
+    }
 }
 
 export type CreateRecord = RequestDataBase & {
-    type: REQUEST_TYPES.CreateRecord
+    type: REQUEST_TYPES.CreateRecord,
+    layout: string,
+    fieldData: {
+        [key: string]: string
+    },
+    portalData: portalDataObject
 }
 
 export type ModifyRecord = RequestDataBase & {
-    type: REQUEST_TYPES.ModifyRecord
+    type: REQUEST_TYPES.ModifyRecord,
+    layout: string,
+    recordId: number,
+    fieldData: {
+        [key: string]: string
+    },
+    portalData: portalDataObject
 }
 
 export type DuplicateRecord = RequestDataBase & {
-    type: REQUEST_TYPES.DuplicateRecord
+    type: REQUEST_TYPES.DuplicateRecord,
+    layout: string,
+    recordId: number
 }
 
 export type DeleteRecord = RequestDataBase & {
-    type: REQUEST_TYPES.DeleteRecord
+    type: REQUEST_TYPES.DeleteRecord,
+    layout: string,
+    recordId: number
 }
 
 export type GetRecord = RequestDataBase & {
-    type: REQUEST_TYPES.GetRecord
+    type: REQUEST_TYPES.GetCurrentRecord
 }
 
-export type UploadContainer = RequestDataBase & {
-    type: REQUEST_TYPES.UploadContainer
+export type ContainerDataRequest = RequestDataBase & {
+    type: REQUEST_TYPES.ContainerDataRequest,
+    layout: string,
+    recordId: number,
+    fieldId: string
 }

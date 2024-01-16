@@ -5,18 +5,13 @@
 import {EventEmitter} from "events";
 import {LayoutInterface} from "../layouts/layoutInterface";
 import {Layout} from "../layouts/layout";
-import {
-    databaseOptionsBase,
-    DatabaseStructure,
-    loginOptionsFileMaker,
-    Script
-} from "../types";
+import {databaseOptionsBase, DatabaseStructure, loginOptionsFileMaker, Script} from "../types";
 import {DatabaseBase} from "./databaseBase";
-import {RequestData, WebToFileMaker} from "../models/fmScriptData";
+import {REQUEST_TYPES, RequestData, WebToFileMaker} from "../models/fmScriptData";
 import {RequestItem} from "./requestItem";
-import * as crypto from "crypto";
 
 type GetLayoutReturnType<T extends DatabaseStructure, R extends LayoutInterface | string> = R extends string ? T["layouts"][R] : R
+const DATA_VERSION = 1
 
 declare global {
     interface Window {
@@ -61,6 +56,19 @@ export class Database<T extends DatabaseStructure> extends EventEmitter implemen
         return new Layout<LayoutInterface>(this, name)
     }
 
+    async getCurrentRecord() {
+        let req = this.request<{recordId: number, layoutName: string}>({
+            type: REQUEST_TYPES.GetCurrentRecord
+        })
+        let res = await req.async()
+        let layout = this.getLayout(res.layoutName)
+        let record = await layout.records.get(res.recordId)
+        await record.get()
+        return record
+    }
+
+
+
     script(name, parameter = ""): Script {
         return ({name, parameter} as Script)
     }
@@ -93,12 +101,15 @@ export class Database<T extends DatabaseStructure> extends EventEmitter implemen
 
         const data: WebToFileMaker = {
             private_key: this.privateKey,
+            dataVersion: DATA_VERSION,
             requests
         }
         window.FileMaker.PerformScript("EASYFM_RESPONDER", JSON.stringify(data))
+        console.log("DATA OUT", data, new Date())
     }
 
     processRequestsIn(data: [string, any][]) {
+        console.log("DATA IN", data, new Date())
         for (let item of data) {
             let req = this.pendingRequests.get(item[0])
             if (!req) continue
