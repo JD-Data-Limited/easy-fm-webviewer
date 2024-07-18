@@ -33,7 +33,7 @@ export class Layout<T extends LayoutInterface> implements LayoutBase {
     async runScript (script: Script): Promise<ScriptResult> {
         let url = `${this.endpoint}/script/${encodeURIComponent(script.name)}`
         if (script.parameter) url += '?script.param=' + encodeURIComponent(script.parameter)
-        const res = await this.database._apiRequestJSON<ApiScriptResult>(url, {
+        const res = await this.database.sendApiRequest<ApiScriptResult>(url, {
             method: 'GET'
         })
         if (res.response && res.messages[0].code === '0') {
@@ -58,7 +58,7 @@ export class Layout<T extends LayoutInterface> implements LayoutBase {
             return this.metadata
         }
 
-        const res = await this.database._apiRequestJSON<ApiLayoutMetadata>(this.endpoint)
+        const res = await this.database.sendApiRequest<ApiLayoutMetadata>(this.endpoint)
         if (!res.response) throw new FMError(res.messages[0].code, res.httpStatus, res)
         this.metadata = res.response
         return this.metadata

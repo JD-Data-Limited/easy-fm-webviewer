@@ -68,7 +68,7 @@ export class LayoutRecord<LAYOUT extends LayoutInterface> extends RecordBase<LAY
 
         if (this.recordId === -1) {
             // This is a new LayoutRecord
-            const res = await this.layout.database._apiRequestJSON<{ recordId: string, modId: string }>(`${this.layout.endpoint}/records`, {
+            const res = await this.layout.database.sendApiRequest<{ recordId: string, modId: string }>(`${this.layout.endpoint}/records`, {
                 method: 'POST',
                 body: JSON.stringify(data)
             })
@@ -87,7 +87,7 @@ export class LayoutRecord<LAYOUT extends LayoutInterface> extends RecordBase<LAY
         }
 
         // for (let item of Object.keys(data)) extraBody[item] = data[item]
-        const res = await this.layout.database._apiRequestJSON<{
+        const res = await this.layout.database.sendApiRequest<{
             modId: string,
             newPortalRecordInfo: Array<{
                 tableName: string
@@ -139,7 +139,7 @@ export class LayoutRecord<LAYOUT extends LayoutInterface> extends RecordBase<LAY
             throw new Error('Cannot get this RecordBase until a commit() is done.')
         }
         if (!this.layout.metadata) await this.layout.getLayoutMeta()
-        const res = await this.layout.database._apiRequestJSON<ApiRecordResponseObj>(this.endpoint, {
+        const res = await this.layout.database.sendApiRequest<ApiRecordResponseObj>(this.endpoint, {
             method: 'GET'
         })
 
@@ -157,7 +157,7 @@ export class LayoutRecord<LAYOUT extends LayoutInterface> extends RecordBase<LAY
 
     async duplicate (): Promise<LayoutRecord<LAYOUT>> {
         const trace = new Error()
-        const res = await this.layout.database._apiRequestJSON<{ recordId: string, modId: string }>(this.endpoint, {
+        const res = await this.layout.database.sendApiRequest<{ recordId: string, modId: string }>(this.endpoint, {
             method: 'POST'
         })
         if (!res.response) {
@@ -176,7 +176,7 @@ export class LayoutRecord<LAYOUT extends LayoutInterface> extends RecordBase<LAY
     }
 
     async delete (): Promise<void> {
-        const res = await this.layout.database._apiRequestJSON(this.endpoint, {
+        const res = await this.layout.database.sendApiRequest(this.endpoint, {
             method: 'DELETE'
         })
         if (typeof res.response?.scriptError !== 'undefined' && res.response?.scriptError !== '0') {

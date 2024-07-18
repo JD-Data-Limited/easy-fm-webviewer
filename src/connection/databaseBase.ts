@@ -14,6 +14,6 @@ export interface DatabaseBase {
 
     // layouts: DatabaseStructure["layouts"]
 
-    _apiRequestJSON: <T = unknown>(url: URL | RequestInfo, options?: RequestInit & { headers?: Record<string, string> } | undefined, autoRelogin?: boolean) => Promise<ApiResults<T>>
+    sendApiRequest: <T = unknown>(url: URL | RequestInfo, options?: RequestInit & { headers?: Record<string, string> } | undefined, autoRelogin?: boolean) => Promise<ApiResults<T>>
     _apiRequestRaw: (url: URL | RequestInfo, options?: RequestInit & { headers?: Record<string, string>, useCookieJar?: boolean } | undefined) => Promise<Response>
 }

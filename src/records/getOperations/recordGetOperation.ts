@@ -206,7 +206,7 @@ export class RecordGetOperation<T extends LayoutInterface, OPTIONS extends GetOp
         }
 
         try {
-            const res = await this.layout.database._apiRequestJSON<ApiRecordResponseObj>(
+            const res = await this.layout.database.sendApiRequest<ApiRecordResponseObj>(
                 endpoint,
                 reqData
             )
