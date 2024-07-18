@@ -1,16 +1,19 @@
 {
   "compilerOptions": {
     "target": "es2022",
-    "module": "es2022",
-    "lib": ["es2021.intl", "dom"],
-    "moduleResolution": "Node",
+    "module": "NodeNext",
+    "lib": ["es2021.intl", "es2022", "dom"],
+    "moduleResolution": "NodeNext",
     "declaration": true,
-    "outDir": "./dist"
+    "noImplicitAny": true,
+    "strict": true
+//    "outDir": "./dist"
   },
   "exclude": [
     "node_modules"
   ],
   "files": [
-    "src/index.ts"
+    "src/index.ts",
+    "tests/login.ts",
   ]
 }

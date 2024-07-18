@@ -1,45 +1,52 @@
 /*
- * Copyright (c) 2023. See LICENSE file for more information
+ * Copyright (c) 2023-2024. See LICENSE file for more information
  */
 
-import {RecordBase, RecordTypes} from "./recordBase";
-import {extraBodyOptions, recordObject} from "../types";
+import {RecordBase} from './recordBase.js'
+import {type extraBodyOptions, RecordTypes} from '../types.js'
 
-import {RecordFieldsMap} from "../layouts/recordFieldsMap";
-import {PortalBase} from "./portalBase";
+import {type RecordFieldsMap} from '../layouts/recordFieldsMap.js'
+import {type PortalBase} from './portalBase.js'
+import {type Field, type FieldValue} from './field.js'
 
+/**
+ * Represents a PortalRecord, which is a record in a portal within a parent record.
+ * @template T - The type of the record's field map.
+ */
 export class PortalRecord<T extends RecordFieldsMap> extends RecordBase<T> {
-    readonly portal: PortalBase<T>;
+    readonly portal: PortalBase<T>
     readonly type = RecordTypes.PORTAL
 
-    constructor(record, portal, recordId, modId = recordId, fieldData = {}) {
-        super(record.layout, recordId, modId);
-
+    constructor (record: RecordBase<any>, portal: PortalBase<any>, recordId: number, modId = recordId, fieldData = {}) {
+        super(record.layout, recordId, modId, fieldData)
         this.portal = portal
-        this.processFieldData(fieldData)
     }
 
-    _onSave() {
-        super._onSave();
+    _onSave () {
+        super._onSave()
         this.portal.record._onSave()
     }
 
-    commit(extraBody: extraBodyOptions = {}) {
-        return this.portal.record.commit(extraBody)
+    /**
+     * Commits the parent record, and in turn this one.
+     *
+     * @param {extraBodyOptions} [extraBody={}] - The optional extra body options.
+     * @returns {Promise} - A promise that resolves when the record is committed.
+     */
+    async commit (extraBody: extraBodyOptions = {}) {
+        return await this.portal.record.commit(extraBody)
     }
 
-    toObject(fieldFilter): any {
-        super.toObject()
-        let res = {
-            recordId: this.recordId === -1 ? undefined : this.recordId,
-            modId: this.modId === -1 ? undefined : this.modId
-        } as recordObject
-        for (let field of this.fieldsArray.filter(a => fieldFilter(a))) res[field.id] = field.value
+    toObject (fieldFilter: (a: Field<FieldValue>) => boolean): {
+        modId?: string
+        recordId?: string
+    } & Record<string, string> {
+        const res: any = {
+            recordId: this.recordId === -1 ? undefined : this.recordId.toString(),
+            modId: this.modId === -1 ? undefined : this.modId.toString()
+        }
+        for (const field of this.fieldsArray.filter(a => fieldFilter(a))) res[field.id] = field.value?.toString()
         // console.log(res)
         return res
-    }
-
-    getField(field) {
-        return this.fieldsArray.find(_field => _field.id === field) || this.fieldsArray.find(_field => _field.id === this.portal.name + "::" + field)
     }
 }
