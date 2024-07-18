@@ -23,19 +23,10 @@ import {RequestFormat} from "../requestFormat.js";
  */
 export class Database<T extends DatabaseStructure> extends EventEmitter implements DatabaseBase {
     private _token: string = ''
-    readonly host: HostBase
-    private readonly connection_details: databaseOptionsWithExternalSources
-    private cookies = new CookieJar()
-    readonly name: string
-    readonly debug: boolean
     readonly #layoutCache = new Map<string, Layout<any>>()
 
-    constructor (host: HostBase, conn: databaseOptionsWithExternalSources) {
+    constructor () {
         super()
-        this.host = host
-        this.name = conn.database
-        this.connection_details = conn
-        this.debug = conn.debug ?? false
     }
 
     // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
