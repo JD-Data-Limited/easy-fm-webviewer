@@ -2,7 +2,6 @@
  * Copyright (c) 2023-2024. See LICENSE file for more information
  */
 
-import {EventEmitter} from 'events'
 import * as moment from 'moment'
 import {type Moment} from 'moment'
 import {RecordTypes} from '../types.js'
@@ -11,7 +10,7 @@ import {type LayoutBase} from '../layouts/layoutBase.js'
 import {type ApiFieldData} from '../models/apiResults.js'
 import {Field, type FieldValue} from './field.js'
 
-export abstract class RecordBase<T extends RecordFieldsMap> extends EventEmitter {
+export abstract class RecordBase<T extends RecordFieldsMap> {
     readonly layout: LayoutBase
     readonly type: RecordTypes = RecordTypes.UNKNOWN
     public recordId: number
@@ -25,7 +24,6 @@ export abstract class RecordBase<T extends RecordFieldsMap> extends EventEmitter
     protected portalData: any[] = []
 
     protected constructor (layout: LayoutBase, recordId: number, modId = recordId, fieldData: ApiFieldData) {
-        super()
         this.layout = layout
         this.recordId = recordId
         this.modId = modId
@@ -85,7 +83,6 @@ export abstract class RecordBase<T extends RecordFieldsMap> extends EventEmitter
     }
 
     _onSave () {
-        this.emit('saved')
         for (const field of this.fieldsArray) field.edited = false
     }
 }

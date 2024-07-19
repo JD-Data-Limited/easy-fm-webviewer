@@ -2,7 +2,6 @@
  * Copyright (c) 2023-2024. See LICENSE file for more information
  */
 
-import {EventEmitter} from 'events'
 import {generateAuthorizationHeaders} from './generateAuthorizationHeaders.js'
 import {FMError} from '../FMError.js'
 import {type LayoutInterface} from '../layouts/layoutInterface.js'
@@ -29,14 +28,13 @@ type RequestHandler<T = unknown> = (data: ApiResults<T>) => void
  * Represents a database connection.
  * @template T - The structure of the database.
  */
-export class Database<T extends DatabaseStructure> extends EventEmitter implements DatabaseBase {
+export class Database<T extends DatabaseStructure> implements DatabaseBase {
     private _token: string = ''
     readonly #layoutCache = new Map<string, Layout<any>>()
     #pendingRequests = new Map<string, RequestHandler<never>>()
     #key = "My Key"
 
     constructor () {
-        super()
         window.EASYFM_onReceiveFileMakerFeedback = (req_id, data) => {
             let parsedData = JSON.parse(data)
             let method = this.#pendingRequests.get(req_id)
@@ -74,15 +72,6 @@ export class Database<T extends DatabaseStructure> extends EventEmitter implemen
 
     get token () {
         return this._token
-    }
-
-    /**
-     * Returns the endpoint URL for the database connection.
-     *
-     * @returns {string} The endpoint URL.
-     */
-    get endpoint (): string {
-        return `${this.host.protocol}//${this.host.hostname}/fmi/data/v2/databases/${this.name}`
     }
 
     sendApiRequest<T = any>(data: RequestFormat): Promise<ApiResults<T>> {

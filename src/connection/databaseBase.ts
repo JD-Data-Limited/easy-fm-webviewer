@@ -7,7 +7,6 @@ import {type ApiResults} from '../models/apiResults.js'
 import {RequestFormat} from "../requestFormat.js";
 
 export interface DatabaseBase {
-    endpoint: string
     token: string
 
     // layouts: DatabaseStructure["layouts"]
