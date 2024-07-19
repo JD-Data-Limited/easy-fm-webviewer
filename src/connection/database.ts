@@ -18,7 +18,8 @@ declare global {
         FileMaker: {
             PerformScript(script: string, params: string): void
             PerformScriptWithOption(script: string, params: string, option: string): void
-        }
+        },
+        EASYFM_onReceiveFileMakerFeedback(req_id: string, data: string): void
     }
 }
 
@@ -32,11 +33,20 @@ export class Database<T extends DatabaseStructure> extends EventEmitter implemen
     private _token: string = ''
     readonly #layoutCache = new Map<string, Layout<any>>()
     #pendingRequests = new Map<string, RequestHandler<never>>()
-    #key: string
+    #key = "My Key"
 
-    constructor (key: string) {
+    constructor () {
         super()
-        this.#key = key
+        window.EASYFM_onReceiveFileMakerFeedback = (req_id, data) => {
+            let parsedData = JSON.parse(data)
+            let method = this.#pendingRequests.get(req_id)
+            if (method) void method(parsedData)
+            this.#pendingRequests.delete(req_id)
+        }
+    }
+
+    setKey(key: string) {
+        this.#key = JSON.parse(JSON.stringify(key)) // Safely re-serialise the key to help prevent any hijacked methods
     }
 
     // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
@@ -96,7 +106,12 @@ export class Database<T extends DatabaseStructure> extends EventEmitter implemen
      * @throws {FMError} If there was an error retrieving the layouts.
      */
     async listLayouts (page: number = 0) {
-        const req = await this.sendApiRequest<{ layouts: ApiLayout[] }>(`${this.endpoint}/layouts?page=${encodeURIComponent(page)}`)
+        const req = await this.sendApiRequest<{ layouts: ApiLayout[] }>({
+            version: "v2",
+            action: "metaData",
+            layouts: "",
+            tables: ""
+        })
         console.log(req)
         if (!req.response) throw new FMError(req.messages[0].code, req.httpStatus, req.messages[0].message)
 
@@ -130,10 +145,6 @@ export class Database<T extends DatabaseStructure> extends EventEmitter implemen
     }
 }
 
-export function openDatabaseWithKey<T extends DatabaseStructure>(key: string) {
-    return new Database<T>(key)
-}
+
 // @ts-ignore
-window.openDatabaseWithKey = openDatabaseWithKey
-// @ts-ignore
-window.database = openDatabaseWithKey("My Key")
+window.EASYFM_database = new Database()
