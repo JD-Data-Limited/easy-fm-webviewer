@@ -159,24 +159,11 @@ export class Field<T extends FieldValue> {
         }
     }
 
-    // @containerDownloadFunction
-    async #streamAsync (): Promise<{ data: NodeJS.ReadableStream, mime: string }> {
-        const req = await this.parent.layout.database._apiRequestRaw(this.string, {useCookieJar: true})
-        if (!req.ok || !req.body) {
-            throw new Error(`HTTP Error: ${req.status} (${req.statusText})`)
-        }
-        return {data: req.body, mime: req.headers.get('Content-Type') ?? ''}
-    }
 
-    async stream () {
-        return await this.#streamAsync()
-    }
-
-    // @containerDownloadFunction
-    async arrayBuffer (): Promise<{ data: ArrayBuffer, mime: string }> {
-        const req = await this.parent.layout.database._apiRequestRaw(this.string, {useCookieJar: true})
+    async fetch () {
+        const req = await fetch(this.value?.toString() ?? '')
         if (!req.ok) throw new Error(`HTTP Error: ${req.status} (${req.statusText})`)
-        return {data: await req.arrayBuffer(), mime: req.headers.get('Content-Type') ?? ''}
+        return req
     }
 }
 
