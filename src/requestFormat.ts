@@ -60,9 +60,17 @@ export type RequestFormatDuplicate = RequestFormatBase & {
     recordId?: number,
 }
 
+export type RequestFormatContainerDownload = {
+    action: "container_download",
+    recordId: number,
+    layouts: string,
+    field: string
+}
+
 export type RequestFormat = RequestFormatRead
     | RequestFormatMetaData
     | RequestFormatCreate
     | RequestFormatUpdate
     | RequestFormatDelete
     | RequestFormatDuplicate
+    | RequestFormatContainerDownload

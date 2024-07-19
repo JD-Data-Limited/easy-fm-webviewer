@@ -14,6 +14,7 @@ export type Container = null
 export interface Parentable {
     layout: LayoutBase
     type: RecordTypes
+    recordId: number,
     endpoint: string
     portal?: { name: string }
 }
@@ -161,8 +162,13 @@ export class Field<T extends FieldValue> {
 
 
     async fetch () {
-        const req = await fetch(this.value?.toString() ?? '', { mode: "no-cors" })
-        if (!req.ok) throw new Error(`HTTP Error: ${req.status} (${req.statusText})`)
+        const req = await this.parent.layout.database.sendApiRequest<string>({
+            action: "container_download",
+            recordId: this.parent.recordId,
+            layouts: this.parent.layout.name,
+            field: this.id
+        })
+        // if (!req.ok) throw new Error(`HTTP Error: ${req.status} (${req.statusText})`)
         return req
     }
 }
