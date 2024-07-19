@@ -7,15 +7,22 @@ import {generateAuthorizationHeaders} from './generateAuthorizationHeaders.js'
 import {FMError} from '../FMError.js'
 import {type LayoutInterface} from '../layouts/layoutInterface.js'
 import {Layout} from '../layouts/layout.js'
-import {type databaseOptionsBase, type databaseOptionsWithExternalSources, type Script} from '../types.js'
-import {type HostBase} from './HostBase.js'
+import {type databaseOptionsBase, type Script} from '../types.js'
 import {type DatabaseBase} from './databaseBase.js'
 import {type ApiLayout, type ApiResults} from '../models/apiResults.js'
 import {type DatabaseStructure} from '../databaseStructure.js'
-import fetch, {type HeadersInit, type RequestInfo, type RequestInit, type Response} from 'node-fetch'
-// @ts-expect-error - fetchWithCookies does not have available typescript types
-import fetchWithCookies, {CookieJar} from 'node-fetch-cookies'
 import {RequestFormat} from "../requestFormat.js";
+
+declare global {
+    interface Window {
+        FileMaker: {
+            PerformScript(script: string, params: string): void
+            PerformScriptWithOption(script: string, params: string, option: string): void
+        }
+    }
+}
+
+type RequestHandler<T = unknown> = (data: ApiResults<T>) => void
 
 /**
  * Represents a database connection.
@@ -24,9 +31,12 @@ import {RequestFormat} from "../requestFormat.js";
 export class Database<T extends DatabaseStructure> extends EventEmitter implements DatabaseBase {
     private _token: string = ''
     readonly #layoutCache = new Map<string, Layout<any>>()
+    #pendingRequests = new Map<string, RequestHandler<never>>()
+    #key: string
 
-    constructor () {
+    constructor (key: string) {
         super()
+        this.#key = key
     }
 
     // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
@@ -51,66 +61,6 @@ export class Database<T extends DatabaseStructure> extends EventEmitter implemen
      * @returns {Promise<void>} A promise that resolves with no value once the logout is successful.
      * @throws {Error} Throws an error if the user is not logged in.
      */
-    async logout (): Promise<void> {
-        if (this.token === '') throw new Error('Not logged in')
-
-        const _fetch = await fetch(`${this.endpoint}/sessions/${this.token}`, {
-            method: 'DELETE',
-            headers: {
-                'content-type': 'application/json'
-            }
-        })
-        await _fetch.json()
-        this._token = ''
-    }
-
-    /**
-     * Logs in to the database. Not required, as this is often done automatically
-     *
-     * @param {boolean} [forceLogin=false] - Whether to force login even if already logged in.
-     * @throws {Error} - Throws an error if already logged in and forceLogin is false.
-     * @throws {FMError} - Throws an FMError if login fails.
-     * @return {Promise<string>} - Returns a promise that resolves to the access token upon successful login.
-     */
-    async login (forceLogin = false) {
-        if (this.token !== '' && !forceLogin) return
-
-        // Reset cookies
-        this.cookies = new CookieJar()
-
-        await this.host.getMetadata()
-
-        if (this.connection_details.credentials.method === 'token') {
-            this._token = (this.connection_details.credentials).token
-            return this.token
-        }
-        else {
-            const url = new URL(`${this.endpoint}/sessions`)
-            url.hostname = this.host.hostname
-            const res = await fetch(url, {
-                method: 'POST',
-                headers: generateAuthorizationHeaders(this.connection_details.credentials) as unknown as HeadersInit,
-                body: JSON.stringify({
-                    fmDataSource: this.connection_details.externalSources.map(i => {
-                        const _i = i
-                        return this.generateExternalSourceLogin(_i)
-                    })
-                })
-            })
-            const _res = (await res.json()) as any
-            if (res.status === 200) {
-                this._token = res.headers.get('x-fm-data-access-token') ?? ''
-                return this._token
-            }
-            else {
-                throw new FMError(
-                    _res.messages[0].code as string | number,
-                    _res.status as number,
-                    res
-                )
-            }
-        }
-    }
 
     get token () {
         return this._token
@@ -125,22 +75,18 @@ export class Database<T extends DatabaseStructure> extends EventEmitter implemen
         return `${this.host.protocol}//${this.host.hostname}/fmi/data/v2/databases/${this.name}`
     }
 
-    async sendApiRequest<T = any>(data: RequestFormat): Promise<ApiResults<T>> {
-        if (!options.headers) options.headers = {}
-        options.headers['content-type'] = options.headers['content-type'] ? options.headers['content-type'] : 'application/json'
-        const _fetch = await this._apiRequestRaw(url, options)
-        const data = await _fetch.json() as ApiResults<T>
+    sendApiRequest<T = any>(data: RequestFormat): Promise<ApiResults<T>> {
+        return new Promise<ApiResults<T>>((resolve, reject) => {
+            let req_id = crypto.randomUUID()
+            const handler: RequestHandler<T> = (data) => resolve(data)
+            this.#pendingRequests.set(req_id, handler)
 
-        // Remove response if it is empty. This makes checking for an empty response easier
-        if (data.response && Object.keys(data.response).length === 0) delete data.response
-
-        // console.log(data.messages[0])
-        if (data.messages[0].code !== '0') {
-            throw new FMError(data.messages[0].code, _fetch.status, data)
-        }
-
-        data.httpStatus = _fetch.status
-        return data
+            // Send request to FileMaker
+            window.FileMaker.PerformScript("EasyFMWebViewerHandler", JSON.stringify({
+                key: this.#key,
+                req_id, data
+            }))
+        })
     }
 
     /**
@@ -183,3 +129,11 @@ export class Database<T extends DatabaseStructure> extends EventEmitter implemen
         return ({name, parameter} satisfies Script)
     }
 }
+
+export function openDatabaseWithKey<T extends DatabaseStructure>(key: string) {
+    return new Database<T>(key)
+}
+// @ts-ignore
+window.openDatabaseWithKey = openDatabaseWithKey
+// @ts-ignore
+window.database = openDatabaseWithKey("My Key")

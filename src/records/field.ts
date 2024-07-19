@@ -159,7 +159,7 @@ export class Field<T extends FieldValue> {
         }
     }
 
-    @containerDownloadFunction
+    // @containerDownloadFunction
     async #streamAsync (): Promise<{ data: NodeJS.ReadableStream, mime: string }> {
         const req = await this.parent.layout.database._apiRequestRaw(this.string, {useCookieJar: true})
         if (!req.ok || !req.body) {
@@ -172,7 +172,7 @@ export class Field<T extends FieldValue> {
         return await this.#streamAsync()
     }
 
-    @containerDownloadFunction
+    // @containerDownloadFunction
     async arrayBuffer (): Promise<{ data: ArrayBuffer, mime: string }> {
         const req = await this.parent.layout.database._apiRequestRaw(this.string, {useCookieJar: true})
         if (!req.ok) throw new Error(`HTTP Error: ${req.status} (${req.statusText})`)

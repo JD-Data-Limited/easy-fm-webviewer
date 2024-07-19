@@ -4,16 +4,13 @@
 
 import {type HostBase} from './HostBase.js'
 import {type ApiResults} from '../models/apiResults.js'
-import {type RequestInfo, type RequestInit, type Response} from 'node-fetch'
+import {RequestFormat} from "../requestFormat.js";
 
 export interface DatabaseBase {
-    host: HostBase
-    readonly name: string
     endpoint: string
     token: string
 
     // layouts: DatabaseStructure["layouts"]
 
-    sendApiRequest: <T = unknown>(url: URL | RequestInfo, options?: RequestInit & { headers?: Record<string, string> } | undefined, autoRelogin?: boolean) => Promise<ApiResults<T>>
-    _apiRequestRaw: (url: URL | RequestInfo, options?: RequestInit & { headers?: Record<string, string>, useCookieJar?: boolean } | undefined) => Promise<Response>
+    sendApiRequest: <T = unknown>(data: RequestFormat) => Promise<ApiResults<T>>
 }
