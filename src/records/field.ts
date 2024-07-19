@@ -161,7 +161,7 @@ export class Field<T extends FieldValue> {
 
 
     async fetch () {
-        const req = await fetch(this.value?.toString() ?? '')
+        const req = await fetch(this.value?.toString() ?? '', { mode: "no-cors" })
         if (!req.ok) throw new Error(`HTTP Error: ${req.status} (${req.statusText})`)
         return req
     }
