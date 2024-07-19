@@ -123,17 +123,6 @@ export class RecordGetOperation<T extends LayoutInterface, OPTIONS extends GetOp
     }
 
     /**
-     * Configures any FileMaker scripts to be run as a part of the request
-     *
-     * @param {ScriptRequestData} scripts - The script request data to set.
-     * @return {this} - The current instance of the class.
-     */
-    scripts (scripts: ScriptRequestData) {
-        this.scriptData = scripts
-        return this
-    }
-
-    /**
      * Sorts the data based on the given field name and sort order.
      *
      * @param {string} fieldName - The name of the field by which the data should be sorted.
