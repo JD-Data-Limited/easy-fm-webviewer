@@ -9,6 +9,7 @@ import {LayoutRecord} from '../layoutRecord.js'
 import {type ApiRecordResponseObj} from '../../models/apiResults.js'
 import {FMError} from '../../FMError.js'
 import {FindRequestSymbol, type Query} from '../../utils/query.js'
+import {RequestFormatReadQuery, RequestFormatReadRange} from "../../requestFormat.js";
 
 export type SortOrder = 'ascend' | 'descend'
 export type FindRequestRaw = Record<string, string>
@@ -33,7 +34,6 @@ export interface GetOperationOptions<T extends LayoutInterface> {
 export class RecordGetOperation<T extends LayoutInterface, OPTIONS extends GetOperationOptions<T>> {
     protected layout: LayoutBase
     protected limit: number = 100
-    protected scriptData: ScriptRequestData = {}
     protected sortData: Array<{ fieldName: string, sortOrder: SortOrder }> = []
     protected portals: Partial<PortalData<T>>
     protected offset: number = 1
@@ -45,10 +45,6 @@ export class RecordGetOperation<T extends LayoutInterface, OPTIONS extends GetOp
         this.portals = options.portals
         this.offset = options.offset ?? 1 // Offset refers to the starting record. offset 1 is the same as no offset.
         this.limit = options.limit ?? 100
-    }
-
-    get isFindRequest () {
-        return this.queries.length !== 0
     }
 
     private formatQueries () {
@@ -64,62 +60,6 @@ export class RecordGetOperation<T extends LayoutInterface, OPTIONS extends GetOp
             return out
         })
         return test
-    }
-
-    protected generateParamsBody (offset: number, limit: number) {
-        const params: Record<string, any> = {
-            limit: limit.toString(),
-            offset: offset.toString(),
-            dateformats: 2 // Ensure dates are received in ISO8601 format
-        }
-        if (this.sortData.length !== 0) params.sort = this.sortData
-
-        if (this.scriptData.after) params.script = this.scriptData.after.name
-        if (this.scriptData.after?.parameter) params['script.param'] = this.scriptData.after.parameter
-
-        if (this.scriptData.presort) params['script.presort'] = this.scriptData.presort.name
-        if (this.scriptData.presort?.parameter) params['script.presort.param'] = this.scriptData.presort.parameter
-
-        if (this.scriptData.prerequest) params['script.prerequest'] = this.scriptData.prerequest.name
-        if (this.scriptData.prerequest?.parameter) params['script.prerequest.param'] = this.scriptData.prerequest.parameter
-
-        if (this.queries.length !== 0) params.query = this.formatQueries()
-
-        const portals: Array<keyof typeof this.portals> = Object.keys(this.portals)
-        params.portal = portals
-        for (const portal of portals) {
-            params[`offset.${portal.toString()}`] = this.portals[portal]?.offset
-            params[`limit.${portal.toString()}`] = this.portals[portal]?.limit
-        }
-
-        return params
-    }
-
-    protected generateParamsURL (offset: number, limit: number) {
-        const params = new URLSearchParams({
-            _limit: limit.toString(),
-            _offset: offset.toString(),
-            dateformats: '2' // Ensure dates are received in ISO8601 format
-        })
-        if (this.sortData.length !== 0) params.set('_sort', JSON.stringify(this.sortData))
-
-        if (this.scriptData.after) params.set('script', this.scriptData.after.name)
-        if (this.scriptData.after?.parameter) params.set('script.param', this.scriptData.after.parameter)
-
-        if (this.scriptData.presort) params.set('script.presort', this.scriptData.presort.name)
-        if (this.scriptData.presort?.parameter) params.set('script.presort.param', this.scriptData.presort.parameter)
-
-        if (this.scriptData.prerequest) params.set('script.prerequest', this.scriptData.prerequest.name)
-        if (this.scriptData.prerequest?.parameter) params.set('script.prerequest.param', this.scriptData.prerequest.parameter)
-
-        const portals: Array<keyof typeof this.portals> = Object.keys(this.portals)
-        for (const portal of portals) {
-            params.set(`_offset.${portal.toString()}`, (this.portals[portal]?.limit ?? '').toString())
-            params.set(`_offset.${portal.toString()}`, (this.portals[portal]?.offset ?? '').toString())
-        }
-        params.set('portal', JSON.stringify(portals))
-
-        return params
     }
 
     /**
@@ -184,21 +124,24 @@ export class RecordGetOperation<T extends LayoutInterface, OPTIONS extends GetOp
     >>> {
         const trace = new Error()
         await this.layout.getLayoutMeta()
-
-        const isFind = this.isFindRequest
-        let endpoint = this.layout.endpoint + (isFind ? '/_find' : '/records')
-        if (!isFind) endpoint += '?' + new URLSearchParams(this.generateParamsURL(offset, limit)).toString()
-        const reqData = {
-            // port: 443,
-            method: isFind ? 'POST' : 'GET',
-            body: isFind ? JSON.stringify(this.generateParamsBody(offset, limit)) : undefined
+        const req: RequestFormatReadRange | RequestFormatReadQuery = {
+            action: "read",
+            version: "v2",
+            layouts: this.layout.name,
+            offset: this.offset,
+            limit: this.limit,
+            portal: []
         }
 
+        for (let portal in this.portals) {
+            req.portal.push(portal)
+            req[`offset.${portal}`] = this.portals[portal]?.offset ?? 1
+            req[`limit.${portal}`] = this.portals[portal]?.limit ?? 100
+        }
+
+
         try {
-            const res = await this.layout.database.sendApiRequest<ApiRecordResponseObj>(
-                endpoint,
-                reqData
-            )
+            const res = await this.layout.database.sendApiRequest<ApiRecordResponseObj>(req)
             if (res.messages[0].code === '0' && res.response) {
                 // console.log("RESOLVING")
                 if (!this.layout.metadata) await this.layout.getLayoutMeta()

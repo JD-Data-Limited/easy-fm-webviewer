@@ -58,7 +58,11 @@ export class Layout<T extends LayoutInterface> implements LayoutBase {
             return this.metadata
         }
 
-        const res = await this.database.sendApiRequest<ApiLayoutMetadata>(this.endpoint)
+        const res = await this.database.sendApiRequest<ApiLayoutMetadata>({
+            action: "metaData",
+            version: "v2",
+            layouts: this.name
+        })
         if (!res.response) throw new FMError(res.messages[0].code, res.httpStatus, res)
         this.metadata = res.response
         return this.metadata

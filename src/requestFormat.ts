@@ -1,19 +1,15 @@
 export type RequestFormatBase = {
     version: "v2"
     layouts: string,
-    tables: string
 }
 
-export type RequestFormatRead = RequestFormatBase & {
+export type RequestFormatReadSingle = RequestFormatBase & {
     action: "read",
     recordId: number
 }
 
-export type RequestFormatReadQuery = RequestFormatBase & {
+export type RequestFormatReadRange = RequestFormatBase & {
     action: "read",
-    query: {
-        [key: string]: string
-    }[],
     sort?: {}[],
     offset: number,
     limit: number,
@@ -22,9 +18,19 @@ export type RequestFormatReadQuery = RequestFormatBase & {
     [key: `limit.${string}`]: number
 }
 
-export type RequestFormatMetaData = RequestFormatBase & {
-    action: "metaData"
+export type RequestFormatReadQuery = RequestFormatReadRange & {
+    query: {
+        [key: string]: string
+    }[]
 }
+
+export type RequestFormatRead = RequestFormatReadSingle
+    | RequestFormatReadRange
+    | RequestFormatReadQuery
+
+export type RequestFormatMetaData = Omit<RequestFormatBase, "layouts"> & {
+    action: "metaData",
+} & ({tables: string} | {layouts: string})
 
 export type RequestFormatCreate = RequestFormatBase & {
     action: "create",
@@ -55,7 +61,6 @@ export type RequestFormatDuplicate = RequestFormatBase & {
 }
 
 export type RequestFormat = RequestFormatRead
-    | RequestFormatReadQuery
     | RequestFormatMetaData
     | RequestFormatCreate
     | RequestFormatUpdate
